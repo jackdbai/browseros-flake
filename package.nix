@@ -5,14 +5,14 @@
 }:
 
 let
-  version = "0.34.0";
+  version = "0.35.0";
   # urlver = "0.31.0.14"; # For when URL and version don't match
   pname = "browseros";
 
   src = fetchurl {
     url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${version}/BrowserOS_v${version}_x64.AppImage";
     # url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${urlver}/BrowserOS_v${version}_x64.AppImage"; # For when URL and version don't match
-    hash = "sha256-Kxe0BoHNec+u5W+FxKQp2yOCs5kbrbLUJWigZRww8+Y=";
+    hash = "sha256-p3sw+nagG0pqgVAkvXRC2Hr2clC8Ery+Wq5b+aHZOWk=";
   };
 
   appimageContents = appimageTools.extractType1 { inherit pname version src; };
