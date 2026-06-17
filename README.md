@@ -53,7 +53,7 @@ Pass `inputs` to your configuration module (e.g. via `specialArgs` or `extraSpec
 
 ---
 
-#### Option B: Via Overlay (Recommended)
+#### Option B: Via Overlay
 Add the default overlay provided by this flake to your `nixpkgs.overlays`, allowing you to reference the package as `pkgs.browseros` like a standard package.
 
 **NixOS Configuration (`configuration.nix`):**
