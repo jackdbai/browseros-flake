@@ -5,13 +5,13 @@
 }:
 
 let
-  version = "0.44.0.1";
-  # urlver = "0.39.0"; # For when URL and version don't match
+  pkgver = "0.44.0.1";
+  urlver = "0.44.0.1";
+  version = pkgver;
   pname = "browseros";
 
   src = fetchurl {
-    url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${version}/BrowserOS_v${version}_x64.AppImage";
-    # url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${urlver}/BrowserOS_v${version}_x64.AppImage"; # For when URL and version don't match
+    url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${urlver}/BrowserOS_v${pkgver}_x64.AppImage";
     hash = "sha256-ALnyVMnexYy48br9qbWaEbOZm7hJR9g39a9nYzbWXwo=";
   };
 
