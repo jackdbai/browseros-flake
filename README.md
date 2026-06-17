@@ -1,31 +1,70 @@
-# ABOUT
-This is an unofficial flake to install [BrowserOS](https://www.browseros.com/) on NixOS.
-It currently builds only for `x86_64-linux` systems.
+# Unofficial BrowserOS Nix Flake
 
-# HOWTO
-1. In your `flake.nix`, make sure you have the inputs and outputs set correctly:
+This is an unofficial flake to package and install [BrowserOS](https://www.browseros.com/) on NixOS.
+It currently supports the `x86_64-linux` platform.
+
+## Installation
+
+### 1. Add the Flake to your inputs
+
+Add `browseros-flake` to your `flake.nix` inputs:
+
 ```nix
 {
-  description = "I <3 Nix";
-
   inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    
     browseros.url = "github:jackdbai/browseros-flake";
-    # THE REST OF YOUR INPUTS GO HERE
   };
 
-  outputs = { self, browseros, home-manager, hosts, nixpkgs, ... } @ inputs: {
-    # THE REST OF YOUR NORMAL CONFIGS GO HERE
+  outputs = { self, nixpkgs, browseros, ... }@inputs: {
+    # ...
   };
 }
 ```
-2. In wherever you list your installed packages (I use home-manager), include the reference to the flake:
-```nix
-{ config, pkgs, inputs, ... }:
 
-{
-  home.packages = with pkgs; [
-    inputs.browseros.packages."${system}".default
-    # OTHER PACKAGES GO HERE
+### 2. Install the Package
+
+There are two common ways to add BrowserOS to your configuration:
+
+#### Option A: Direct Reference
+Pass `inputs` to your configuration module (e.g. via `specialArgs` or `extraSpecialArgs`), then reference the package directly:
+
+**NixOS Configuration (`configuration.nix`):**
+```nix
+{ inputs, pkgs, ... }: {
+  environment.systemPackages = [
+    inputs.browseros.packages.${pkgs.system}.default
+  ];
+}
+```
+
+**Home Manager Configuration (`home.nix`):**
+```nix
+{ inputs, pkgs, ... }: {
+  home.packages = [
+    inputs.browseros.packages.${pkgs.system}.default
+  ];
+}
+```
+
+> [!NOTE]
+> Ensure you pass `inputs` from your top-level `flake.nix` to your modules. For NixOS, use `specialArgs = { inherit inputs; };`. For Home Manager, use `extraSpecialArgs = { inherit inputs; };`.
+
+---
+
+#### Option B: Via Overlay (Recommended)
+Add the default overlay provided by this flake to your `nixpkgs.overlays`, allowing you to reference the package as `pkgs.browseros` like a standard package.
+
+**NixOS Configuration (`configuration.nix`):**
+```nix
+{ inputs, pkgs, ... }: {
+  nixpkgs.overlays = [
+    inputs.browseros.overlays.default
+  ];
+
+  environment.systemPackages = [
+    pkgs.browseros
   ];
 }
 ```

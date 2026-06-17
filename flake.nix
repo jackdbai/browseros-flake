@@ -3,8 +3,8 @@
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-  outputs = { self, nixpkgs, nix }: let 
-    
+  outputs = { self, nixpkgs }: let
+
     systems = [
       "x86_64-linux"
     ];
