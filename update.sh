@@ -40,30 +40,24 @@ if [ "$LATEST_PKGVER" = "$CURRENT_PKGVER" ] && [ "$LATEST_URLVER" = "$CURRENT_UR
   exit 0
 fi
 
-# 3. Update version variables and set hash to dummy in package.nix
-echo "Updating package.nix variables..."
-sed -i "s/pkgver = \"$CURRENT_PKGVER\";/pkgver = \"$LATEST_PKGVER\";/" package.nix
-sed -i "s/urlver = \"$CURRENT_URLVER\";/urlver = \"$LATEST_URLVER\";/" package.nix
-sed -i 's/hash = "[^"]*";/hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";/' package.nix
+# 3. Fetch the new hash using nix-prefetch-url
+echo "Prefetching new release to compute hash..."
+DOWNLOAD_URL="https://github.com/browseros-ai/BrowserOS/releases/download/v${LATEST_URLVER}/BrowserOS_v${LATEST_PKGVER}_x64.AppImage"
+BASE32_HASH=$(nix-prefetch-url --type sha256 "$DOWNLOAD_URL")
 
-# 4. Run nix-build to get the correct hash
-echo "Running nix-build to compute new hash..."
-BUILD_OUTPUT=$(nix-build -E 'with import <nixpkgs> {}; callPackage ./package.nix {}' 2>&1 || true)
-
-# Extract hash from the mismatch error
-NEW_HASH=$(echo "$BUILD_OUTPUT" | grep 'got:' | grep -o 'sha256-[A-Za-z0-9+/]\{43\}=')
-
-if [ -z "$NEW_HASH" ]; then
-  echo "Error: Failed to extract new hash from nix-build output." >&2
-  echo "nix-build output was:" >&2
-  echo "$BUILD_OUTPUT" >&2
+if [ -z "$BASE32_HASH" ]; then
+  echo "Error: Failed to prefetch package from $DOWNLOAD_URL" >&2
   exit 1
 fi
 
-echo "Extracted new hash: $NEW_HASH"
+NEW_HASH=$(nix-hash --type sha256 --to-sri "$BASE32_HASH")
+echo "Computed new hash: $NEW_HASH"
 
-# 5. Replace dummy hash with the correct hash in package.nix
-sed -i "s|hash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\";|hash = \"$NEW_HASH\";|" package.nix
+# 4. Update package.nix variables and hash
+echo "Updating package.nix..."
+sed -i "s/pkgver = \"$CURRENT_PKGVER\";/pkgver = \"$LATEST_PKGVER\";/" package.nix
+sed -i "s/urlver = \"$CURRENT_URLVER\";/urlver = \"$LATEST_URLVER\";/" package.nix
+sed -i "s|hash = \"[^\"]*\";|hash = \"$NEW_HASH\";|" package.nix
 
 echo "Successfully updated package.nix to pkgver=$LATEST_PKGVER, urlver=$LATEST_URLVER with hash $NEW_HASH."
 
