@@ -12,7 +12,7 @@ let
 
   src = fetchurl {
     url = "https://github.com/browseros-ai/BrowserOS/releases/download/v${urlver}/BrowserOS_v${pkgver}_x64.AppImage";
-    hash = "sha256-zHADwaS3OlV1K6QaAudDTV1vXvgiE1lkFPyqJiEod/c=";
+    hash = "sha256-IV3Agg5i4TKDMQy+BjNbW6sqPsLfPcSOQkOADHhSmTw=";
   };
 
   appimageContents = appimageTools.extractType1 { inherit pname version src; };
